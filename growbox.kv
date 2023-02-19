@@ -1,0 +1,179 @@
+MyWidget:
+
+<Separator@Widget>:
+    size_hint_y: None
+    height:1
+    canvas:
+        Color:
+            rgba: 136 / 253, 134 / 253, 134 / 253, .5
+        Rectangle:
+            pos: self.pos
+            size:root.width, 1
+
+<HSeparator@Separator>:
+    size_hint_y: None
+    height: dp(2)
+<ExoLabel@Label>
+    font_name: 'fonts/exo.ttf'
+<GrowButtonAction@Button>
+    size_hint:None, None
+    height:40
+    background_normal: ""
+    background_color: [73 / 253,106 / 253 ,72 / 253, 1]
+    padding_y:8
+    padding_x:10
+    font_name: 'fonts/cinema-script.otf'
+<GrowButtonPrimary@Button>
+    size_hint:None, None
+    height:40
+    background_normal: ""
+    background_color: [110 / 253 ,129 / 253 ,6 / 253,1]
+    padding_y:8
+    padding_x:10
+    font_name: 'fonts/cinema-script.otf'
+    
+<MyWidget>
+    time_of_the_day_source : "assets/s.png"
+    canvas:
+        Color:
+            rgba: (1,1,1,1)
+    
+        Rectangle:
+            source: "bgr.png"
+            size: root.width, root.height
+            pos: self.pos
+
+    
+        Rectangle:
+            id: time_icon
+            source: self.time_of_the_day_source
+            size: 50, 50
+            pos:  20, root.height - 61
+
+    GridLayout:     
+        size_hint:1, None
+        height: root.height
+        padding: 20,12,20,26
+        cols:1
+        GridLayout: 
+            cols:1 
+            size_hint:1, .45
+            Label: 
+                text: "GROW BOX"
+                size_hint: 1, None
+                size: self.texture_size
+                padding_y: 12
+                font_size: 26
+                font_name: "fonts/cinema-script.otf"
+            
+            ExoLabel:
+                id:clock 
+                text: "12:34"
+                size_hint: 1, None
+                size: self.texture_size
+                font_size:80
+            ExoLabel:
+                id: calendar
+                text:"Monday, September 5th, 2023"
+                size_hint: 1, None
+                size: self.texture_size
+                font_size:20
+                padding_y:10
+                line_height:.3
+            ExoLabel:
+                text: "5th day of grow"
+                size_hint: 1, None
+                size: self.texture_size
+                font_size:18
+            Separator:
+                height:20
+
+        GridLayout:
+            cols:2
+            size_hint:1, .40
+           
+            GridLayout:
+                padding:0, 20, 0, 0
+                spacing:16
+                cols:1
+                size_hint:.4, self.height
+
+                GridLayout:
+                    size_hint:1, .5
+                    spacing:16
+                    cols:1
+                    ExoLabel:
+                        id: day_start 
+                        text: "DAY STARTS AT 7:00"
+                        size_hint: None, None
+                        size: self.texture_size
+                        font_size:18
+                    
+                    ExoLabel:
+                        id: day_end
+                        text: "DAY FINISHES AT 1:00"
+                        size_hint: None, None
+                        size: self.texture_size
+                        font_size:18
+                    Separator:
+                   
+                  
+                GridLayout:
+                    size_hint:1, .5
+                    spacing:16
+                    cols:1
+                    ExoLabel:
+                        text: "VEGETATION: 5th DAY"
+                        size_hint: None, None
+                        size: self.texture_size
+                        font_size:18
+                    ExoLabel:
+                        text: "FLOWERING :"
+                        size_hint: None, None
+                        size: self.texture_size
+                        font_size:18
+                    Separator:
+                   
+                
+  
+            GridLayout:
+                cols:2
+                size_hint:.6, self.height
+                ExoLabel:
+                    id: temperature
+                    text: "0"
+                    size_hint: .5, None
+                 
+                    font_size:28
+                ExoLabel:
+                    id: humidity
+                    text: "0"
+                    size_hint: .5, None
+              
+                    font_size:28
+        GridLayout:
+            cols:3
+            size_hint: 1, .15
+            spacing: 35
+            GrowButtonPrimary:
+                text:"SETTING"
+                width: 150
+            GrowButtonPrimary:
+                text:"STATISTICS"
+                width:150
+            AnchorLayout:
+                anchor_x: "right"
+                anchor_y: "bottom"
+                GrowButtonAction:
+                    id: start_btn 
+                    text:"START GROW"
+                    width:170
+                    on_press: root.toggle_start()
+                    
+
+
+
+    
+            
+    
+    
