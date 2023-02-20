@@ -1,5 +1,8 @@
 MyWidget:
 
+#:set temperature_angle 55
+#:set humidity_angle -39
+
 <Separator@Widget>:
     size_hint_y: None
     height:1
@@ -33,7 +36,10 @@ MyWidget:
     font_name: 'fonts/cinema-script.otf'
     
 <MyWidget>
+
     time_of_the_day_source : "assets/s.png"
+ 
+
     canvas:
         Color:
             rgba: (1,1,1,1)
@@ -138,19 +144,69 @@ MyWidget:
   
             GridLayout:
                 cols:2
-                size_hint:.6, self.height
+                size_hint:.6,1
+                padding: 45,18,0,15
+  
+                AnchorLayout:
+                    ExoLabel:
+                        id: temperature
+                        progress: -140
+                        progress_color: (173/253, 173/253, 173/253, .75)
+                        text: "0"
+                        size_hint: .5, None
+                        height:150
+                        font_size:34
+                    
+             
+                        
+                        canvas:
+                            Color:
+                                rgba:(173/253, 173/253, 173/253, .75)
+                            Line:
+                                width:5
+                                circle:(self.center_x, self.center_y , min(150, 150)/ 2, -140,140)
+                            Color:
+                                rgba: self.progress_color
+                            Line:
+                                width:5
+                                circle:(self.center_x, self.center_y , min(150, 150)/ 2, -140,self.progress)
+            
+          
+                AnchorLayout: 
+                    ExoLabel:
+                        id: humidity
+                        progress: -140
+                        progress_color: (173/253, 173/253, 173/253, .75)
+                        text: "0"
+                        size_hint: .5, None
+                        height:150
+         
+                        font_size:34
+                   
+                        canvas:
+                            Color:
+                                rgba:(173/253, 173/253, 173/253, .75)
+                            Line:
+                                width:5
+                                circle:(self.center_x, self.center_y, min(150, 150)/ 2, -140,140)
+                            Color:
+                                rgba: self.progress_color
+        
+                            Line:
+                                width:5
+                                circle:(self.center_x, self.center_y, min(150, 150)/ 2, -140,self.progress)   
                 ExoLabel:
-                    id: temperature
-                    text: "0"
+                    text: "Temperature"
+                    font_name: 'fonts/cinema-script.otf'
+                    font_size:22
                     size_hint: .5, None
-                 
-                    font_size:28
+                    height:20
                 ExoLabel:
-                    id: humidity
-                    text: "0"
+                    text: "Humidity"
+                    font_name: 'fonts/cinema-script.otf'
+                    font_size:22
                     size_hint: .5, None
-              
-                    font_size:28
+                    height:20
         GridLayout:
             cols:3
             size_hint: 1, .15
