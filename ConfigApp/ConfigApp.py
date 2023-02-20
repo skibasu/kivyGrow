@@ -22,7 +22,7 @@ class ConfigApp:
 
     def set_end_time(self):
         t = datetime.combine(date.today(), time(
-            self.start['hour'], self.start['minute'])) + timedelta(minutes=1)
+            self.start['hour'], self.start['minute'])) + timedelta(hours=self.period)
         self.end = {"hour": int(t.strftime('%H')),
                     "minute": int(t.strftime('%M'))}
 
