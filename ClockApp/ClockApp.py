@@ -8,7 +8,6 @@ class Clock:
         self.config = config
         self.time_clock = "0:00"
         self.calendar = ""
-
         self.led_lamp = others["led_lamp"]
         self.time_of_the_day = others["time_of_the_day"]
 
@@ -18,19 +17,23 @@ class Clock:
         now = datetime.now()
         current_time = now.strftime("%H:%M")
         current_date = now.strftime("%A, %d, %B, %Y")
+
+        if (current_time != self.get_time()):
+            self.time_clock = current_time
+
+        if (current_date != self.get_calendar()):
+            self.calendar = current_date
+
+    def check_range(self):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M")
         start_h = self.config["get_range"]()[0]["hour"]
         start_m = self.config["get_range"]()[0]["minute"]
         end_h = self.config["get_range"]()[1]["hour"]
         end_m = self.config["get_range"]()[1]["minute"]
 
-        if (current_time != self.get_time()):
-
-            self.time_clock = current_time
-            self.time_in_range(time(start_h, start_m), time(
-                end_h, end_m), datetime.now().time())
-
-        if (current_date != self.get_calendar()):
-            self.calendar = current_date
+        self.time_in_range(time(start_h, start_m), time(
+            end_h, end_m), datetime.now().time())
 
     def get_time(self):
         return self.time_clock
@@ -41,12 +44,10 @@ class Clock:
     def set_sunny_day(self):
         self.led_lamp.on()
         self.time_of_the_day.set_status("day")
-        print("Lamp was ON at  : ", datetime.now().time())
 
     def set_dark_night(self):
         self.led_lamp.off()
         self.time_of_the_day.set_status("night")
-        print("Lamp was OFF at : ", datetime.now().time())
 
     def time_in_range(self, start, end, current):
 
