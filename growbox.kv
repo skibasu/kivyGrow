@@ -1,4 +1,4 @@
-MyWidget:
+MainScreen:
 
 
 <Separator@Widget>:
@@ -33,9 +33,9 @@ MyWidget:
     padding_x:10
     font_name: 'fonts/cinema-script.otf'
     
-<MyWidget>
+<MainScreen>
 
-    time_of_the_day_source : "assets/s.png"
+    time_of_the_day_source : ""
  
 
     canvas.before:
@@ -51,7 +51,7 @@ MyWidget:
         Rectangle:
             id: time_icon
             source: self.time_of_the_day_source
-            size: 50, 50
+            size: (50, 50) if self.time_of_the_day_source else (0,0)
             pos:  20, root.height - 61
 
     GridLayout:     
@@ -108,14 +108,14 @@ MyWidget:
                     cols:1
                     ExoLabel:
                         id: day_start 
-                        text: "DAY STARTS AT 7:00"
+                        text: "DAY START IS NOT ACTIVATED"
                         size_hint: None, None
                         size: self.texture_size
                         font_size:18
                     
                     ExoLabel:
                         id: day_end
-                        text: "DAY FINISHES AT 1:00"
+                        text: "DAY FINISH IS NOT ACTIVATED"
                         size_hint: None, None
                         size: self.texture_size
                         font_size:18
@@ -212,7 +212,7 @@ MyWidget:
             GrowButtonPrimary:
                 text:"SETTING"
                 width: 150
-                on_press: root.manager.current = "SettingsWidget"
+                on_press: root.manager.current = "SettingsScreen"
             GrowButtonPrimary:
                 text:"STATISTICS"
                 width:150
@@ -229,7 +229,8 @@ MyWidget:
 
 
 
-<SettingsWidget>
+<SettingsScreen>
+
     canvas:
         Color:
             rgba: (1,1,1,1)
@@ -241,16 +242,10 @@ MyWidget:
     GridLayout:
         size_hint:1, None
         height: root.height
-        padding: 20,12,20,26
+        padding: 20,12,20,15
         cols:1
         Label: 
-            canvas.before:
-                Color:
-                    rgba: (1,0,0,1)
-                Rectangle:
-                    size:self.size
-                    pos: self.pos
-            text:"Settings"
+            text:"SETTINGS"
             size_hint: 1, None
             size: self.texture_size
             padding_y: 12
@@ -262,36 +257,25 @@ MyWidget:
             size:self.texture_size
             text:"Day starts at :"
             font_size:18
+            padding_y: 12
 
         GridLayout:
             cols:2
             size_hint:1, None
             size:self.minimum_size
-        
-            canvas.before:
-                Color:
-                    rgba: [73 / 253,106 / 253 ,2 / 253, 1]
-                Rectangle:
-                    size:self.size
-                    pos: self.pos
             GridLayout:
                 cols:5
                 size_hint:.5, None
                 height: 60
-                canvas.before:
-                    Color:
-                        rgba: [3 / 253,16 / 253 ,2 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
                 Label:
+                    id:config_start_hour
                     canvas.before:
                         Color:
-                            rgba: [73 / 253,106 / 253 ,72 / 253, 1]
+                            rgba: [2 / 253, 98/ 253 ,103 / 253, 1]
                         Rectangle:
                             size:self.size
                             pos: self.pos
-                    text: "20"
+                    text: ""
                     size_hint:None,None
                     width: 60
                     height:60
@@ -308,9 +292,10 @@ MyWidget:
                         size_hint:None,None
                         width: 30
                         height:29
-                        
                         text:"+"
                         font_size:26
+                        disabled: root.app_is_runnig
+                        on_press: root.add_hour()
                     Button:
                         background_normal: ""
                         background_color: (0,0,0,1)
@@ -319,6 +304,8 @@ MyWidget:
                         height:29
                         text:"-"
                         font_size:36
+                        disabled: root.app_is_runnig
+                        on_press: root.minus_hour()
                 Label:
                     size_hint:None,None
                     width: 20
@@ -326,13 +313,14 @@ MyWidget:
                     font_size:30
                     text:" : "
                 Label:
+                    id:config_start_minute
                     canvas.before:
                         Color:
-                            rgba: [73 / 253,106 / 253 ,72 / 253, 1]
+                            rgba: [2 / 253, 98/ 253, 103 / 253, 1]
                         Rectangle:
                             size:self.size
                             pos: self.pos
-                    text: "20"
+                    text: ""
                     size_hint:None,None
                     width: 60
                     height:60
@@ -349,9 +337,10 @@ MyWidget:
                         size_hint:None,None
                         width: 30
                         height:29
-                        
                         text:"+"
                         font_size:26
+                        disabled: root.app_is_runnig
+                        on_press: root.add_minute()
                     Button:
                         background_normal: ""
                         background_color: (0,0,0,1)
@@ -360,54 +349,52 @@ MyWidget:
                         height:29
                         text:"-"
                         font_size:36
+                        disabled: root.app_is_runnig
+                        on_press: root.minus_minute()
             GridLayout:
                
                 size_hint:.5, None
-                height: 60
+              
+                height: 90
+                spacing:10
                 cols:1
-                canvas.before:
-                    Color:
-                        rgba: [73 / 253,106 / 253 ,72 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
+                
                
-                GrowButtonAction:
+                Button:
+                    size_hint:None,None
+                    width: 200
+                    height: 40
+                    text:   "START VEGETATION"
+                    background_normal: ""
+                    #pos_hint: { 'y':-20 }
+                    bold:True
+                    disabled: root.period == 18 or root.period == 12
+                    background_color: [73 / 253,106 / 253 ,72 / 253, 1]
+                    on_press: root.start_vegetative()
+                Button:
                     size_hint:None,None
                     width: 200
                     height: 40
                     text:   "START FLOWERING"
                     background_normal: ""
-                    pos_hint: { 'y':-20 }
+                    bold:True
+                    disabled: root.period == 12 or root.period == None
+                    #pos_hint: { 'y':-20 }
                     background_color: [68 / 253,16 / 253 ,95 / 253, 1]
         Separator:
-            height:20
+            height:32
         GridLayout:
             cols:2
-            size_hint:1 ,None
-            
+            size_hint:1 ,None  
             size:self.minimum_size
-            
-            canvas.before:
-                Color:
-                    rgba: [73 / 253,106 / 253 ,72 / 253, 1]
-                Rectangle:
-                    size:self.size
-                    pos: self.pos
+            padding:0,20,0,40
             GridLayout:
                 cols:1
                 size_hint:.5, None
-                padding:0,0,0,10
                 size:self.minimum_size
                 spacing:15
-             
-                canvas.before:
-                    Color:
-                        rgba: [173 / 253,106 / 253 ,2 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
                 ExoLabel:
+                    id:v_label
                     size_hint:None,None
                     text:"VEGETATION"
                     size:self.texture_size
@@ -417,22 +404,14 @@ MyWidget:
                     text:"Minimum Humidity"
                     size:self.texture_size
                     font_size:18
-
-             
+                    padding_y:12
             GridLayout:
                 cols:1
                 spacing:15
                 size_hint:.5, None
                 size:self.minimum_size
-                padding:0,0,0,10
-                canvas.before:
-                    Color:
-                        rgba: [1 / 253,106 / 253 ,200 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
-
                 ExoLabel:
+                    id:f_label
                     size_hint:None,None
                     text:"FLOWERING"
                     font_size:22
@@ -442,24 +421,21 @@ MyWidget:
                     text:"Minimum Humidity"
                     size:self.texture_size
                     font_size:18
+                    padding_y:12
             GridLayout:
                 cols:2
                 size_hint:1, None
                 height: 60
-                canvas.before:
-                    Color:
-                        rgba: [3 / 253,16 / 253 ,2 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
+                
                 Label:
+                    id:v_min_humidity
                     canvas.before:
                         Color:
                             rgba: [73 / 253,106 / 253 ,72 / 253, 1]
                         Rectangle:
                             size:self.size
                             pos: self.pos
-                    text: "20"
+                    text: "10"
                     size_hint:None,None
                     width: 60
                     height:60
@@ -471,15 +447,18 @@ MyWidget:
                     width:30
                     height:60
                     Button:
+                        id:b_v_min_plus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
                         width: 30
-                        height:29
-                        
+                        height:29   
                         text:"+"
                         font_size:26
+                        disabled:False
+                        on_press: root.add_humidity(root.ids.v_min_humidity, root.ids.v_label.text)
                     Button:
+                        id: b_v_min_minus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -487,24 +466,21 @@ MyWidget:
                         height:29
                         text:"-"
                         font_size:36
+                        disabled:False
+                        on_press: root.minus_humidity(root.ids.v_min_humidity, root.ids.v_label.text)
             GridLayout:
                 cols:2
                 size_hint:1, None
                 height: 60
-                canvas.before:
-                    Color:
-                        rgba: [3 / 253,16 / 253 ,2 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
                 Label:
+                    id: f_min_humidity
                     canvas.before:
                         Color:
-                            rgba: [73 / 253,106 / 253 ,72 / 253, 1]
+                            rgba: [68 / 253,16 / 253 ,95 / 253, 1]
                         Rectangle:
                             size:self.size
                             pos: self.pos
-                    text: "20"
+                    text: "10"
                     size_hint:None,None
                     width: 60
                     height:60
@@ -516,15 +492,18 @@ MyWidget:
                     width:30
                     height:60
                     Button:
+                        id: b_f_min_plus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
                         width: 30
-                        height:29
-                        
+                        height:29    
                         text:"+"
                         font_size:26
+                        disabled:False
+                        on_press:root.add_humidity(root.ids.f_min_humidity,root.ids.f_label.text)
                     Button:
+                        id:b_f_min_minus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -532,18 +511,13 @@ MyWidget:
                         height:29
                         text:"-"
                         font_size:36
+                        disabled:False
+                        on_press:root.minus_humidity(root.ids.f_min_humidity,root.ids.f_label.text)
             GridLayout:
                 cols:1
-                padding: 0 ,20, 0 ,10
+                padding: 0 ,20, 0 ,12
                 size_hint:1, None
                 size:self.minimum_size
-                canvas.before:
-                    Color:
-                        rgba: [1 / 253,106 / 253 ,200 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
-
                 ExoLabel:
                     size_hint:None,None
                     text:"Maximum Humidity"
@@ -551,16 +525,9 @@ MyWidget:
                     font_size:18
             GridLayout:
                 cols:1
-                padding: 0 ,20, 0 ,10
+                padding: 0 ,20, 0 ,12
                 size_hint:1, None
                 size:self.minimum_size
-                canvas.before:
-                    Color:
-                        rgba: [1 / 253,106 / 253 ,200 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
-
                 ExoLabel:
                     size_hint:None,None
                     text:"Maximum Humidity"
@@ -570,13 +537,8 @@ MyWidget:
                 cols:2
                 size_hint:1, None
                 height: 60
-                canvas.before:
-                    Color:
-                        rgba: [3 / 253,16 / 253 ,2 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
                 Label:
+                    id: v_max_humidity
                     canvas.before:
                         Color:
                             rgba: [73 / 253,106 / 253 ,72 / 253, 1]
@@ -595,15 +557,18 @@ MyWidget:
                     width:30
                     height:60
                     Button:
+                        id:b_v_max_plus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
                         width: 30
                         height:29
-                        
                         text:"+"
                         font_size:26
+                        disabled:False
+                        on_press:root.add_humidity(root.ids.v_max_humidity,root.ids.v_label.text)
                     Button:
+                        id:b_v_max_minus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -611,20 +576,16 @@ MyWidget:
                         height:29
                         text:"-"
                         font_size:36
+                        on_press:root.minus_humidity(root.ids.v_max_humidity, root.ids.v_label.text)
             GridLayout:
                 cols:2
                 size_hint:1, None
                 height: 60
-                canvas.before:
-                    Color:
-                        rgba: [3 / 253,16 / 253 ,2 / 253, 1]
-                    Rectangle:
-                        size:self.size
-                        pos: self.pos
                 Label:
+                    id:f_max_humidity
                     canvas.before:
                         Color:
-                            rgba: [73 / 253,106 / 253 ,72 / 253, 1]
+                            rgba:  [68 / 253,16 / 253 ,95 / 253, 1]
                         Rectangle:
                             size:self.size
                             pos: self.pos
@@ -640,15 +601,18 @@ MyWidget:
                     width:30
                     height:60
                     Button:
+                        id:b_f_max_plus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
                         width: 30
                         height:29
-                        
                         text:"+"
                         font_size:26
+                        disabled:False
+                        on_press:root.add_humidity(root.ids.f_max_humidity, root.ids.f_label.text)
                     Button:
+                        id:b_f_max_minus
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -656,37 +620,22 @@ MyWidget:
                         height:29
                         text:"-"
                         font_size:36
+                        on_press:root.minus_humidity(root.ids.f_max_humidity, root.ids.f_label.text)
         Separator:
-            height:20       
+            height:1      
         GridLayout:
             cols:2
-            
-            canvas.before:
-                Color:
-                    rgba: [3 / 253,16 / 253 ,2 / 253, 1]
-                Rectangle:
-                    size:self.size
-                    pos: self.pos
-        
             GrowButtonPrimary:
                 text:"SAVE"
                 width: 150
-               
-           
             AnchorLayout:
                 anchor_x: "right"
                 anchor_y: "bottom"
                 GrowButtonAction:
-                   
-                    text:"Back"
-                    width:170
-                    
-
-                      
-                    
-
-        
-        
+                    text:"QUIT"
+                    width:170  
+                    background_color:[199 / 253, 68 / 253, 73 / 253, 1]
+                    on_press:root.manager.current = "MainScreen"    
 <StatisticsWidget>  
     Button:
         text:"Haalo"           

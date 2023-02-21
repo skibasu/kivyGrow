@@ -2,7 +2,7 @@
 
 class TimeOfTheDay:
     def __init__(self):
-        self.status = "night"
+        self.status = ""
         self.night_image = "assets/m.png"
         self.day_image = "assets/s.png"
 
@@ -12,6 +12,8 @@ class TimeOfTheDay:
 
         elif self.status == 'night':
             return self.night_image
+        else:
+            return ""
 
     def set_status(self, status):
         self.status = status

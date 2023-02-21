@@ -18,19 +18,25 @@ class Clock:
         now = datetime.now()
         current_time = now.strftime("%H:%M")
         current_date = now.strftime("%A, %d, %B, %Y")
-        start_h = self.config["get_range"]()[0]["hour"]
-        start_m = self.config["get_range"]()[0]["minute"]
-        end_h = self.config["get_range"]()[1]["hour"]
-        end_m = self.config["get_range"]()[1]["minute"]
 
         if (current_time != self.get_time()):
 
             self.time_clock = current_time
-            self.time_in_range(time(start_h, start_m), time(
-                end_h, end_m), datetime.now().time())
 
         if (current_date != self.get_calendar()):
             self.calendar = current_date
+
+    def check_range(self):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M")
+        start_h = self.config["get_range"]()[0]["hour"]
+        start_m = self.config["get_range"]()[0]["minute"]
+        end_h = self.config["get_range"]()[1]["hour"]
+        end_m = self.config["get_range"]()[1]["minute"]
+        print("Current time", current_time, "Self get time", self.get_time())
+
+        self.time_in_range(time(start_h, start_m), time(
+            end_h, end_m), datetime.now().time())
 
     def get_time(self):
         return self.time_clock
