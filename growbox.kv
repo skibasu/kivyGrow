@@ -34,20 +34,15 @@ MainScreen:
     font_name: 'fonts/cinema-script.otf'
     
 <MainScreen>
-
     time_of_the_day_source : ""
  
-
     canvas.before:
         Color:
             rgba: (1,1,1,1)
-    
         Rectangle:
             source: "bgr.png"
             size: root.width, root.height
             pos: self.pos
-
-    
         Rectangle:
             id: time_icon
             source: self.time_of_the_day_source
@@ -69,7 +64,6 @@ MainScreen:
                 padding_y: 12
                 font_size: 26
                 font_name: "fonts/cinema-script.otf"
-            
             ExoLabel:
                 id:clock 
                 text: "12:34"
@@ -91,17 +85,14 @@ MainScreen:
                 font_size:18
             Separator:
                 height:20
-
         GridLayout:
             cols:2
             size_hint:1, .40
-           
             GridLayout:
                 padding:0, 20, 0, 0
                 spacing:16
                 cols:1
                 size_hint:.4, self.height
-
                 GridLayout:
                     size_hint:1, .5
                     spacing:16
@@ -112,16 +103,13 @@ MainScreen:
                         size_hint: None, None
                         size: self.texture_size
                         font_size:18
-                    
                     ExoLabel:
                         id: day_end
                         text: "DAY FINISH IS NOT ACTIVATED"
                         size_hint: None, None
                         size: self.texture_size
                         font_size:18
-                    Separator:
-                   
-                  
+                    Separator:  
                 GridLayout:
                     size_hint:1, .5
                     spacing:16
@@ -137,14 +125,10 @@ MainScreen:
                         size: self.texture_size
                         font_size:18
                     Separator:
-                   
-                
-  
             GridLayout:
                 cols:2
                 size_hint:.6,1
                 padding: 45,18,0,15
-  
                 AnchorLayout:
                     ExoLabel:
                         id: temperature
@@ -153,10 +137,7 @@ MainScreen:
                         text: "0"
                         size_hint: .5, None
                         height:150
-                        font_size:34
-                    
-             
-                        
+                        font_size:34 
                         canvas:
                             Color:
                                 rgba:(173/253, 173/253, 173/253, .75)
@@ -168,8 +149,6 @@ MainScreen:
                             Line:
                                 width:5
                                 circle:(self.center_x, self.center_y , min(150, 150)/ 2, -140,self.progress)
-            
-          
                 AnchorLayout: 
                     ExoLabel:
                         id: humidity
@@ -178,9 +157,7 @@ MainScreen:
                         text: "0"
                         size_hint: .5, None
                         height:150
-         
                         font_size:34
-                   
                         canvas:
                             Color:
                                 rgba:(173/253, 173/253, 173/253, .75)
@@ -189,7 +166,6 @@ MainScreen:
                                 circle:(self.center_x, self.center_y, min(150, 150)/ 2, -140,140)
                             Color:
                                 rgba: self.progress_color
-        
                             Line:
                                 width:5
                                 circle:(self.center_x, self.center_y, min(150, 150)/ 2, -140,self.progress)   
@@ -224,7 +200,7 @@ MainScreen:
                     id: start_btn 
                     text:"START GROW"
                     width:170
-                    on_press: root.toggle_start()
+                    on_press: root.start_to_grow()
                     
 
 
@@ -252,12 +228,10 @@ MainScreen:
             font_size: 26
             font_name: "fonts/cinema-script.otf"
         ExoLabel:
-            
             size_hint:None,None
             size:self.texture_size
             text:"Day starts at :"
             font_size:18
-            padding_y: 12
 
         GridLayout:
             cols:2
@@ -287,6 +261,7 @@ MainScreen:
                     width:30
                     height:60
                     Button:
+                        id:b_add_hour
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -294,9 +269,10 @@ MainScreen:
                         height:29
                         text:"+"
                         font_size:26
-                        disabled: root.app_is_runnig
+                        disabled: False
                         on_press: root.add_hour()
                     Button:
+                        id:b_minus_hour
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -304,7 +280,7 @@ MainScreen:
                         height:29
                         text:"-"
                         font_size:36
-                        disabled: root.app_is_runnig
+                        disabled: False
                         on_press: root.minus_hour()
                 Label:
                     size_hint:None,None
@@ -332,6 +308,7 @@ MainScreen:
                     width:30
                     height:60
                     Button:
+                        id:b_add_minute
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -339,9 +316,10 @@ MainScreen:
                         height:29
                         text:"+"
                         font_size:26
-                        disabled: root.app_is_runnig
+                        disabled: False
                         on_press: root.add_minute()
                     Button:
+                        id:b_minus_minute
                         background_normal: ""
                         background_color: (0,0,0,1)
                         size_hint:None,None
@@ -349,45 +327,42 @@ MainScreen:
                         height:29
                         text:"-"
                         font_size:36
-                        disabled: root.app_is_runnig
+                        disabled: False
                         on_press: root.minus_minute()
             GridLayout:
-               
                 size_hint:.5, None
-              
                 height: 90
                 spacing:10
                 cols:1
-                
-               
                 Button:
+                    id:b_start_vegetative
                     size_hint:None,None
                     width: 200
                     height: 40
                     text:   "START VEGETATION"
                     background_normal: ""
-                    #pos_hint: { 'y':-20 }
                     bold:True
-                    disabled: root.period == 18 or root.period == 12
+                    disabled: False
                     background_color: [73 / 253,106 / 253 ,72 / 253, 1]
                     on_press: root.start_vegetative()
                 Button:
+                    id: b_start_flowering
                     size_hint:None,None
                     width: 200
                     height: 40
                     text:   "START FLOWERING"
                     background_normal: ""
                     bold:True
-                    disabled: root.period == 12 or root.period == None
-                    #pos_hint: { 'y':-20 }
+                    disabled: True
                     background_color: [68 / 253,16 / 253 ,95 / 253, 1]
+                    on_press: root.start_flowering()
         Separator:
             height:32
         GridLayout:
             cols:2
             size_hint:1 ,None  
             size:self.minimum_size
-            padding:0,20,0,40
+            padding:0,20,0,20
             GridLayout:
                 cols:1
                 size_hint:.5, None
@@ -628,12 +603,13 @@ MainScreen:
             GrowButtonPrimary:
                 text:"SAVE"
                 width: 150
+                on_press: root.save_humidity_ranges()
             AnchorLayout:
                 anchor_x: "right"
                 anchor_y: "bottom"
                 GrowButtonAction:
-                    text:"QUIT"
-                    width:170  
+                    text:"BACK"
+                    width:150  
                     background_color:[199 / 253, 68 / 253, 73 / 253, 1]
                     on_press:root.manager.current = "MainScreen"    
 <StatisticsWidget>  

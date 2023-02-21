@@ -8,14 +8,14 @@ class ConfigApp:
         self.end = ""
         self.is_running = False
         self.period = None
-        self.weather = {
+        self.humidity_ranges = {
             "vegetative": {
-                "humidity_min": 60,
-                "humidity_max": 80
+                "humidity_min": "60",
+                "humidity_max": "80"
             },
             "flowering": {
-                "humidity_min": 45,
-                "humidity_max": 55
+                "humidity_min": "45",
+                "humidity_max": "55"
             }
         }
 
@@ -54,5 +54,8 @@ class ConfigApp:
     def get_range(self):
         return [self.start, self.end]
 
-    def get_range_of_humidity(self):
-        return self.weather
+    def set_ranges_of_humidity(self, ranges):
+        self.humidity_ranges = ranges
+
+    def get_ranges_of_humidity(self):
+        return self.humidity_ranges

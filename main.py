@@ -35,14 +35,22 @@ class MainScreen(Screen):
         BackgroundClock.schedule_interval(self.update_clock, 1)
         BackgroundClock.schedule_interval(self.update_weather, 3)
 
+    def on_enter(self):
+        self.initialize_start_end()
+
+        if (app_config.get_period()):
+            self.add_start_button_styles()
+
+    def start_to_grow(self):
+        if not app_config.get_is_running():
+            self.manager.current = "SettingsScreen"
+        else:
+            print("open confirm exit popup")
+
     def init_ui(self, args=None):
-        self.add_start_button_styles()
         self.set_time()
         self.set_calendar()
         self.initialize_day_time()
-
-    def init_after_app_start(self):
-        self.initialize_start_end()
 
     def set_time(self, args=None):
         self.ids.clock.text = clock.get_time()
@@ -52,7 +60,6 @@ class MainScreen(Screen):
         self.set_time()
 
         if (app_config.get_is_running()):
-            print('updating clock')
             clock.check_range()
             self.update_day_icon()
 
@@ -165,34 +172,23 @@ class MainScreen(Screen):
         self.time_of_the_day_source = time_of_the_day.get_icon()
 
     def initialize_start_end(self):
-        range = app_config.get_range()
-        start = range[0]
-        end = range[1]
+        if app_config.get_is_running():
+            range = app_config.get_range()
+            start = range[0]
+            end = range[1]
 
-        self.ids.day_start.text = "DAY STARTS AT " + \
-            time(start["hour"], start["minute"]).strftime("%H:%M")
-        self.ids.day_end.text = "DAY FINISHES AT " + \
-            time(end["hour"], end["minute"]).strftime("%H:%M")
+            self.ids.day_start.text = "DAY STARTS AT " + \
+                time(start["hour"], start["minute"]).strftime("%H:%M")
+            self.ids.day_end.text = "DAY FINISHES AT " + \
+                time(end["hour"], end["minute"]).strftime("%H:%M")
 
     def add_start_button_styles(self):
-        if (self.app_is_runnig):
-            self.ids.start_btn.text = "END GROW"
-            self.ids.start_btn.background_color = [
-                199 / 253, 68 / 253, 73 / 253, 1]
-
-        else:
-            self.ids.start_btn.text = "START GROW"
-            self.ids.start_btn.background_color = [
-                73 / 253, 106 / 253, 72 / 253, 1]
-
-    def toggle_start(self):
-        self.add_start_button_styles()
+        self.ids.start_btn.text = "END GROW"
+        self.ids.start_btn.background_color = [
+            199 / 253, 68 / 253, 73 / 253, 1]
 
 
 class SettingsScreen(Screen):
-
-    app_is_runnig = app_config.get_is_running()
-    period = app_config.get_period()
 
     def __init__(self, **kwargs):
 
@@ -201,24 +197,52 @@ class SettingsScreen(Screen):
     def on_parent(self, widget, parent):
         self.initialize_start_time()
 
+    def on_enter(self):
+        self.update_humidity_ranges()
+
+    def update_humidity_ranges(self):
+        ranges = app_config.get_ranges_of_humidity()
+        f_min_humidity = ranges["flowering"]["humidity_min"]
+        f_max_humidity = ranges["flowering"]["humidity_max"]
+        v_min_humidity = ranges["vegetative"]["humidity_min"]
+        v_max_humidity = ranges["vegetative"]["humidity_max"]
+
+        self.ids.f_min_humidity.text = f_min_humidity
+        self.ids.f_max_humidity.text = f_max_humidity
+        self.ids.v_min_humidity.text = v_min_humidity
+        self.ids.v_max_humidity.text = v_max_humidity
+
+    def save_humidity_ranges(self):
+        ranges = {"vegetative": {"humidity_min": self.ids.v_min_humidity.text, "humidity_max": self.ids.v_max_humidity.text},
+                  "flowering": {"humidity_min": self.ids.f_min_humidity.text, "humidity_max": self.ids.f_max_humidity.text}}
+        app_config.set_ranges_of_humidity(ranges)
+
+        self.update_humidity_ranges()
+
     def start_vegetative(self):
         start_time = {"hour": int(self.ids.config_start_hour.text), "minute": int(
             self.ids.config_start_minute.text)}
-        print(start_time)
         app_config.set_period("vegetative")
         app_config.set_start_time(start_time)
         app_config.set_end_time()
         app_config.start_is_running()
 
         self.initialize_start_time()
-
-        self.app_is_runnig = app_config.get_is_running()
-        self.period = app_config.get_period()
-
-        print("START", self.app_is_runnig)
+        self.lock_time_picker()
+        self.ids.b_start_vegetative.disabled = True
+        self.ids.b_start_flowering.disabled = False
 
     def start_flowering(self):
-        pass
+        app_config.set_period("flowering")
+        app_config.set_end_time()
+
+        self.ids.b_start_flowering.disabled = True
+
+    def lock_time_picker(self):
+        self.ids.b_add_hour.disabled = True
+        self.ids.b_minus_hour.disabled = True
+        self.ids.b_add_minute.disabled = True
+        self.ids.b_minus_minute.disabled = True
 
     def initialize_start_time(self):
         range = app_config.get_range()
@@ -228,7 +252,7 @@ class SettingsScreen(Screen):
             self.ids.config_start_hour.text = time(
                 start["hour"]).strftime("%H")
             self.ids.config_start_minute.text = time(
-                start["minute"]).strftime("%M")
+                start["hour"], start["minute"]).strftime("%M")
         else:
             self.ids.config_start_hour.text = "00"
             self.ids.config_start_minute.text = "00"
@@ -332,13 +356,15 @@ class GrowboxApp(App):
 
     def build(self):
 
-        sm = ScreenManager(transition=NoTransition())
+        self.sm = ScreenManager(transition=NoTransition())
+        self.main_screen = MainScreen(name="MainScreen")
+        self.settings_screen = SettingsScreen(name="SettingsScreen")
 
-        sm.add_widget(MainScreen(name="MainScreen"))
-        sm.add_widget(SettingsScreen(name="SettingsScreen"))
-        sm.add_widget(StatisticsWidget(name="StatisticsWidget"))
+        self.sm.add_widget(self.main_screen)
+        self.sm.add_widget(self.settings_screen)
+        self.sm.add_widget(StatisticsWidget(name="StatisticsWidget"))
 
-        return sm
+        return self.sm
 
 
 if __name__ == '__main__':
