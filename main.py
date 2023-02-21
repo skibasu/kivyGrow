@@ -8,6 +8,7 @@ from kivy.clock import Clock as BackgroundClock
 from TimeOfTheDay.TimeOfTheDay import TimeOfTheDay
 from Weather.Weather import Weather
 from datetime import time
+from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 
 Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "600")
@@ -20,11 +21,24 @@ clock = ClockApp({"get_range": app_config.get_range}, {
     "led_lamp": led_lamp, "time_of_the_day": time_of_the_day})
 
 
-class MyWidget(BoxLayout):
+class MyWidget(Screen):
 
     def __init__(self, **kwargs):
 
         super(MyWidget, self).__init__(**kwargs)
+
+    def on_parent(self, widget, parent):
+        self.init_ui()
+        self.update_clock()
+        self.update_weather()
+        BackgroundClock.schedule_interval(self.update_clock, 1)
+        BackgroundClock.schedule_interval(self.update_weather, 3)
+
+    def init_ui(self, args=None):
+        self.initialize_start_end()
+        self.set_time()
+        self.set_calendar()
+        self.initialize_day_time()
 
     def set_time(self, args=None):
         self.ids.clock.text = clock.get_time()
@@ -41,13 +55,13 @@ class MyWidget(BoxLayout):
         humidity_str = str(humidity)
         weather.check_temp_and_humidity()
 
-        if (self.ids.temperature.text != temperature_str):
+        if ((type(temperature) == int or type(temperature) == float) and self.ids.temperature.text != temperature_str):
             self.ids.temperature.text = temperature_str+"\N{DEGREE SIGN}C"
             self.ids.temperature.progress = -140 + \
                 temperature * 5.6
             self.set_temp_colors(temperature)
 
-        if (self.ids.humidity.text != humidity_str):
+        if ((type(humidity) == int or type(humidity) == float) and self.ids.humidity.text != humidity_str):
             self.ids.humidity.text = humidity_str+"%"
             self.ids.humidity.progress = -140 + humidity * 2.8
             self.set_hum_colors(humidity)
@@ -159,19 +173,27 @@ class MyWidget(BoxLayout):
                 73 / 253, 106 / 253, 72 / 253, 1]
 
 
+class SettingsWidget(Screen):
+    def __init__(self, **kwargs):
+        super(SettingsWidget, self).__init__(**kwargs)
+
+
+class StatisticsWidget(Screen):
+    def __init__(self, **kwargs):
+        super(StatisticsWidget, self).__init__(**kwargs)
+
+
 class GrowboxApp(App):
 
     def build(self):
-        widget = MyWidget()
-        widget.initialize_start_end()
-        widget.set_time()
-        widget.set_calendar()
-        widget.initialize_day_time()
 
-        BackgroundClock.schedule_interval(widget.update_clock, 1)
-        BackgroundClock.schedule_interval(widget.update_weather, 3)
+        sm = ScreenManager(transition=NoTransition())
 
-        return widget
+        sm.add_widget(MyWidget(name="MyWidget"))
+        sm.add_widget(SettingsWidget(name="SettingsWidget"))
+        sm.add_widget(StatisticsWidget(name="StatisticsWidget"))
+
+        return sm
 
 
 if __name__ == '__main__':
