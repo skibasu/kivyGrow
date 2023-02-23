@@ -1,5 +1,5 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
+from kivy.core.window import Window
 from kivy.config import Config
 from ConfigApp.ConfigApp import ConfigApp
 from ClockApp.ClockApp import Clock as ClockApp
@@ -9,6 +9,8 @@ from TimeOfTheDay.TimeOfTheDay import TimeOfTheDay
 from Weather.Weather import Weather
 from datetime import time
 from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
+from kivy.uix.popup import Popup
+from kivy.factory import Factory
 
 Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "600")
@@ -19,6 +21,23 @@ time_of_the_day = TimeOfTheDay()
 weather = Weather()
 clock = ClockApp({"get_range": app_config.get_range}, {
     "led_lamp": led_lamp, "time_of_the_day": time_of_the_day})
+
+
+class ConfirmationPopup(Popup):
+
+    def confirm(self, action):
+        self.action()
+
+    def set_action(self, action):
+        self.action = action
+
+
+class SavedPopup(Popup):
+    def confirm(self, action):
+        self.action()
+
+    def set_action(self, action):
+        self.action = action
 
 
 class MainScreen(Screen):
@@ -41,11 +60,20 @@ class MainScreen(Screen):
         if (app_config.get_period()):
             self.add_start_button_styles()
 
+    def close_app(self):
+        App.get_running_app().stop()
+        Window.close()
+
+    def open_popup(self):
+        popup = Factory.ConfirmationPopup()
+        popup.set_action(self.close_app)
+        popup.open()
+
     def start_to_grow(self):
         if not app_config.get_is_running():
             self.manager.current = "SettingsScreen"
         else:
-            print("open confirm exit popup")
+            self.open_popup()
 
     def init_ui(self, args=None):
         self.set_time()
@@ -218,8 +246,10 @@ class SettingsScreen(Screen):
         app_config.set_ranges_of_humidity(ranges)
 
         self.update_humidity_ranges()
+        self.open_popup_saved()
 
-    def start_vegetative(self):
+    def start_vegetative(self, popup):
+
         start_time = {"hour": int(self.ids.config_start_hour.text), "minute": int(
             self.ids.config_start_minute.text)}
         app_config.set_period("vegetative")
@@ -231,12 +261,33 @@ class SettingsScreen(Screen):
         self.lock_time_picker()
         self.ids.b_start_vegetative.disabled = True
         self.ids.b_start_flowering.disabled = False
+        popup.dismiss()
 
-    def start_flowering(self):
+    def open_popup_saved(self):
+        popup = Factory.SavedPopup()
+        popup.set_action(lambda popup=popup: self.go_to_main_screen(popup))
+        popup.open()
+
+    def go_to_main_screen(self, popup):
+        popup.dismiss()
+        self.manager.current = "MainScreen"
+
+    def open_popup_vegetative(self):
+        popup = Factory.ConfirmationPopup()
+        popup.set_action(lambda popup=popup: self.start_vegetative(popup))
+        popup.open()
+
+    def open_popup_flowering(self):
+        popup = Factory.ConfirmationPopup()
+        popup.set_action(lambda popup=popup: self.start_flowering(popup))
+        popup.open()
+
+    def start_flowering(self, popup):
         app_config.set_period("flowering")
         app_config.set_end_time()
 
         self.ids.b_start_flowering.disabled = True
+        popup.dismiss()
 
     def lock_time_picker(self):
         self.ids.b_add_hour.disabled = True
@@ -353,6 +404,7 @@ class StatisticsWidget(Screen):
 
 
 class GrowboxApp(App):
+    icon = "icon.png"
 
     def build(self):
 

@@ -1,4 +1,174 @@
+
 MainScreen:
+
+<ConfirmationPopup>
+    action : None
+
+    auto_dismiss:False
+    size_hint:None,None
+    width:534
+    height:270
+    title:""
+    separator_height:0
+    padding:15
+    GridLayout:
+        cols:1
+        canvas.before:
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                size: self.width ,self.height
+                pos: self.pos
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                source: "assets/violet.png"
+                size: 255 ,170
+                pos: self.x + 510 - 255, self.y  
+        GridLayout:
+            size_hint:1, None
+            size:self.minimum_size
+            cols:1   
+            Label:
+                text: "CONFIRMATION"
+                size_hint:None,None
+                size:self.texture_size
+                padding_x:20
+                padding_y:20
+                height:40
+                font_size: 18
+                font_name: 'fonts/cinema-script.otf'
+            ExoLabel:
+                id:popup_text
+                markup:True
+                size_hint:None,None 
+                size:self.texture_size
+                line_height:1.5
+                text:"If you know what you are doing,\nclick [color=496A4B][b][font=fonts/cinema-script.otf]YES[/font][/b][/color] otherwise click [color=C74449][b][font=fonts/cinema-script.otf]NO[/font][/b][/color]"
+                font_size:18
+                padding_x:20
+                padding_y:8
+            GridLayout:
+                size_hint:.5, None
+                size:self.minimum_size
+                cols:2
+                padding:10, 30, 20, 20
+                GridLayout:
+                    size_hint:.4, None
+                    size:self.minimum_size
+                    cols:1
+                    Button:
+                        id:b_yes
+                        text: "YES"
+                        size_hint:None, None
+                        height:40
+                        width:75
+                        background_normal: ""
+                        background_color: [73 / 253,106 / 253 ,72 / 253, 1]
+                        padding_y:8
+                        padding_x:10
+                        font_name: 'fonts/cinema-script.otf'
+                        on_press: root.confirm(root.action)
+                        
+                GridLayout:
+                    size_hint:.5, None
+                    size:self.minimum_size
+                    cols:1
+                    Button:
+                        text: "NO"
+                        size_hint:None, None
+                        height:40
+                        width:75
+                        background_normal: ""
+                        background_color: [199 / 253,68/ 253 ,73 / 253, 1]
+                        padding_y:8
+                        padding_x:10
+                        font_name: 'fonts/cinema-script.otf'
+                        on_press: root.dismiss()
+<SavedPopup>
+    action : None
+
+    auto_dismiss:False
+    size_hint:None,None
+    width:534
+    height:270
+    title:""
+    separator_height:0
+    padding:15
+    GridLayout:
+        cols:1
+        canvas.before:
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                size: self.width ,self.height
+                pos: self.pos
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                source: "assets/jh.png"
+                size: 171 ,195
+                pos: self.x + 594 - 255, self.y  
+        GridLayout:
+            size_hint:1, None
+            size:self.minimum_size
+            cols:1   
+            Label:
+                text: "SAVED"
+                size_hint:None,None
+                size:self.texture_size
+                padding_x:20
+                padding_y:20
+                height:40
+                font_size: 18
+                font_name: 'fonts/cinema-script.otf'
+            ExoLabel:
+                id:popup_text
+                markup:True
+                size_hint:None,None 
+                size:self.texture_size
+                line_height:1.5
+                text:"For come back on Main Screen\nclick [color=496A4B][b][font=fonts/cinema-script.otf]YES[/font][/b][/color] otherwise click [color=C74449][b][font=fonts/cinema-script.otf]NO[/font][/b][/color]"
+                font_size:18
+                padding_x:20
+                padding_y:8
+            GridLayout:
+                size_hint:.5, None
+                size:self.minimum_size
+                cols:2
+                padding:20, 30, 20, 20
+                GridLayout:
+                    size_hint:.4, None
+                    size:self.minimum_size
+                    cols:1
+                    Button:
+                        id:b_yes
+                        text: "YES"
+                        size_hint:None, None
+                        height:40
+                        width:75
+                        background_normal: ""
+                        background_color: [73 / 253,106 / 253 ,72 / 253, 1]
+                        padding_y:8
+                        padding_x:10
+                        font_name: 'fonts/cinema-script.otf'
+                        on_press: root.confirm(root.action)
+                        
+                GridLayout:
+                    size_hint:.5, None
+                    size:self.minimum_size
+                    cols:1
+                    Button:
+                        text: "NO"
+                        size_hint:None, None
+                        height:40
+                        width:75
+                        background_normal: ""
+                        background_color: [199 / 253,68/ 253 ,73 / 253, 1]
+                        padding_y:8
+                        padding_x:10
+                        font_name: 'fonts/cinema-script.otf'
+                        on_press: root.dismiss()
 
 
 <Separator@Widget>:
@@ -171,14 +341,13 @@ MainScreen:
                                 circle:(self.center_x, self.center_y, min(150, 150)/ 2, -140,self.progress)   
                 ExoLabel:
                     text: "Temperature"
-                    font_name: 'fonts/cinema-script.otf'
                     font_size:22
                     size_hint: .5, None
                     height:20
+                    font_size:18
                 ExoLabel:
                     text: "Humidity"
-                    font_name: 'fonts/cinema-script.otf'
-                    font_size:22
+                    font_size:18
                     size_hint: .5, None
                     height:20
         GridLayout:
@@ -192,7 +361,7 @@ MainScreen:
             GrowButtonPrimary:
                 text:"STATISTICS"
                 width:150
-                on_press: root.manager.current = "StatisticsWidget"
+                on_press: root.open_popup()
             AnchorLayout:
                 anchor_x: "right"
                 anchor_y: "bottom"
@@ -344,7 +513,7 @@ MainScreen:
                     bold:True
                     disabled: False
                     background_color: [73 / 253,106 / 253 ,72 / 253, 1]
-                    on_press: root.start_vegetative()
+                    on_press: root.open_popup_vegetative()
                 Button:
                     id: b_start_flowering
                     size_hint:None,None
@@ -355,7 +524,7 @@ MainScreen:
                     bold:True
                     disabled: True
                     background_color: [68 / 253,16 / 253 ,95 / 253, 1]
-                    on_press: root.start_flowering()
+                    on_press: root.open_popup_flowering()
         Separator:
             height:32
         GridLayout:
