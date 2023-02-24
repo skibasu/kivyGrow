@@ -249,6 +249,7 @@ MainScreen:
                 padding_y:10
                 line_height:.3
             ExoLabel:
+                id: all_days_counter
                 text: "5th day of grow"
                 size_hint: 1, None
                 size: self.texture_size
@@ -285,11 +286,13 @@ MainScreen:
                     spacing:16
                     cols:1
                     ExoLabel:
+                        id:v_days
                         text: "VEGETATION: 5th DAY"
                         size_hint: None, None
                         size: self.texture_size
                         font_size:18
                     ExoLabel:
+                        id: f_days
                         text: "FLOWERING :"
                         size_hint: None, None
                         size: self.texture_size

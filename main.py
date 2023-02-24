@@ -11,15 +11,18 @@ from datetime import time
 from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.uix.popup import Popup
 from kivy.factory import Factory
+from api.api import Api
+from datetime import datetime
 
 Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "600")
 
+api = Api()
 app_config = ConfigApp()
 led_lamp = LedLamp()
 time_of_the_day = TimeOfTheDay()
 weather = Weather()
-clock = ClockApp({"get_range": app_config.get_range}, {
+clock = ClockApp({"get_range": app_config.get_range, "set_current_day": app_config.set_current_day}, {
     "led_lamp": led_lamp, "time_of_the_day": time_of_the_day})
 
 
@@ -54,7 +57,7 @@ class MainScreen(Screen):
         BackgroundClock.schedule_interval(self.update_clock, 1)
         BackgroundClock.schedule_interval(self.update_weather, 3)
 
-    def on_enter(self):
+    def on_pre_enter(self):
         self.initialize_start_end()
 
         if (app_config.get_period()):
@@ -184,6 +187,36 @@ class MainScreen(Screen):
 
     def toggle_day_icon(self):
         self.time_of_the_day_source = time_of_the_day.get_icon()
+        self.count_days()
+
+    def count_days(self):
+        if (time_of_the_day.get_icon() == "assets/s.png"):
+            current_time = datetime.now()
+            started_at = app_config.get_started_at()
+            current_day = app_config.get_current_day()
+            period = app_config.get_period()
+
+            delta = current_time - started_at
+            print("DELTA", delta)
+
+            if ((delta.days + 1) > current_day):
+                app_config.set_current_day(current_day+1)
+                self.ids.all_days_counter.text = str(
+                    app_config.get_current_day()) + "th day of grow"
+
+                if (period == 12):
+                    api.increment_day('current_f_day')
+                    app_config.set_current_v_day(
+                        app_config.get_current_f_day() + 1)
+                    self.ids.f_days.text = "FLOWERING:" + \
+                        str(app_config.get_current_f_day()) + "th DAY"
+
+                elif (period == 18):
+                    api.increment_day('current_v_day')
+                    app_config.set_current_v_day(
+                        app_config.get_current_v_day() + 1)
+                    self.ids.v_days.text = "VEGETATION:" + \
+                        str(app_config.get_current_v_day()) + "th DAY"
 
     def update_day_icon(self):
         if (time_of_the_day.get_icon() != self.time_of_the_day_source):
@@ -205,6 +238,15 @@ class MainScreen(Screen):
             start = range[0]
             end = range[1]
 
+            self.ids.all_days_counter.text = str(
+                app_config.get_current_day()) + "th day of grow"
+
+            self.ids.v_days.text = "VEGETATION: " + \
+                str(app_config.get_current_v_day()) + "th DAY"
+
+            self.ids.f_days.text = "FLOWERING: " + \
+                str(app_config.get_current_f_day()) + "th DAY"
+
             self.ids.day_start.text = "DAY STARTS AT " + \
                 time(start["hour"], start["minute"]).strftime("%H:%M")
             self.ids.day_end.text = "DAY FINISHES AT " + \
@@ -225,8 +267,9 @@ class SettingsScreen(Screen):
     def on_parent(self, widget, parent):
         self.initialize_start_time()
 
-    def on_enter(self):
+    def on_pre_enter(self):
         self.update_humidity_ranges()
+        self.update_btns_disabled()
 
     def update_humidity_ranges(self):
         ranges = app_config.get_ranges_of_humidity()
@@ -240,12 +283,25 @@ class SettingsScreen(Screen):
         self.ids.v_min_humidity.text = v_min_humidity
         self.ids.v_max_humidity.text = v_max_humidity
 
+    def update_btns_disabled(self):
+        if (app_config.get_period() == 18):
+            self.ids.b_start_vegetative.disabled = True
+            self.ids.b_start_flowering.disabled = False
+        elif (app_config.get_period() == 12):
+            self.ids.b_start_flowering.disabled = True
+            self.ids.b_start_vegetative.disabled = True
+
+        if (app_config.get_is_running()):
+
+            self.lock_time_picker()
+
     def save_humidity_ranges(self):
         ranges = {"vegetative": {"humidity_min": self.ids.v_min_humidity.text, "humidity_max": self.ids.v_max_humidity.text},
                   "flowering": {"humidity_min": self.ids.f_min_humidity.text, "humidity_max": self.ids.f_max_humidity.text}}
         app_config.set_ranges_of_humidity(ranges)
 
         self.update_humidity_ranges()
+        api.update_config(ranges)
         self.open_popup_saved()
 
     def start_vegetative(self, popup):
@@ -256,11 +312,14 @@ class SettingsScreen(Screen):
         app_config.set_start_time(start_time)
         app_config.set_end_time()
         app_config.start_is_running()
+        app_config.set_started_at()
 
         self.initialize_start_time()
         self.lock_time_picker()
         self.ids.b_start_vegetative.disabled = True
         self.ids.b_start_flowering.disabled = False
+        api.update_config({"start": start_time, "period": 18,
+                          "end": app_config.get_range()[1], "is_running": True,  "started_at": datetime.now()})
         popup.dismiss()
 
     def open_popup_saved(self):
@@ -287,6 +346,7 @@ class SettingsScreen(Screen):
         app_config.set_end_time()
 
         self.ids.b_start_flowering.disabled = True
+        api.update_config({"period": 12, "end": app_config.get_range()[1]})
         popup.dismiss()
 
     def lock_time_picker(self):
