@@ -3,7 +3,7 @@ from kivy.core.window import Window
 from kivy.config import Config
 from ConfigApp.ConfigApp import ConfigApp
 from ClockApp.ClockApp import Clock as ClockApp
-from LedLamp.LedLamp import LedLamp
+from FireSun.FireSun import FireSun
 from kivy.clock import Clock as BackgroundClock
 from TimeOfTheDay.TimeOfTheDay import TimeOfTheDay
 from Weather.Weather import Weather
@@ -13,15 +13,18 @@ from kivy.uix.popup import Popup
 from kivy.factory import Factory
 from api.api import Api
 from datetime import datetime
+from Humidifier.Humidifier import Humidifier
+from FanIn.FanIn import FanIn
 
 Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "600")
 
 api = Api()
 app_config = ConfigApp()
-led_lamp = LedLamp()
+led_lamp = FireSun()
 time_of_the_day = TimeOfTheDay()
-weather = Weather()
+weather = Weather({"get_period": app_config.get_period,
+                  "get_ranges_of_humidity": app_config.get_ranges_of_humidity})
 clock = ClockApp({"get_range": app_config.get_range, "set_current_day": app_config.set_current_day}, {
     "led_lamp": led_lamp, "time_of_the_day": time_of_the_day})
 
@@ -64,6 +67,10 @@ class MainScreen(Screen):
             self.add_start_button_styles()
 
     def close_app(self):
+
+        weather.destroy()
+        # Humidifier().off()
+        # FanIn().off()
         App.get_running_app().stop()
         Window.close()
 
@@ -149,34 +156,33 @@ class MainScreen(Screen):
 
     def set_hum_colors(self, hum):
         self.period = app_config.get_period()
+        ranges = app_config.get_ranges_of_humidity()
+        f_min_humidity = float(ranges["flowering"]["humidity_min"])
+        f_max_humidity = float(ranges["flowering"]["humidity_max"])
+        v_min_humidity = float(ranges["vegetative"]["humidity_min"])
+        v_max_humidity = float(ranges["vegetative"]["humidity_max"])
 
         if self.period == 18:
-            if hum > 0 and hum < 50:
+            if hum > 0 and hum < v_min_humidity:
                 self.ids.humidity.progress_color = (
                     229 / 253, 179 / 253, 12 / 253, 1)
-            elif hum >= 50 and hum < 65:
+            elif hum >= v_min_humidity and hum < v_max_humidity:
                 self.ids.humidity.progress_color = (
                     12 / 253, 187 / 253, 229 / 253, 1)
-            elif hum >= 65 and hum > 80:
+            elif hum >= v_max_humidity:
                 self.ids.humidity.progress_color = (
                     32 / 253, 87 / 253, 211 / 253, 1)
-            elif hum >= 80:
-                self.ids.humidity.progress_color = (
-                    11 / 253, 50 / 253, 137 / 253, 1)
 
         elif self.period == 12:
-            if hum > 0 and hum < 30:
+            if hum > 0 and hum < f_min_humidity:
                 self.ids.humidity.progress_color = (
                     229 / 253, 179 / 253, 12 / 253, 1)
-            elif hum >= 30 and hum < 40:
+            elif hum >= f_min_humidity and hum < f_max_humidity:
                 self.ids.humidity.progress_color = (
                     12 / 253, 187 / 253, 229 / 253, 1)
-            elif hum >= 40 and hum > 50:
+            elif hum >= f_max_humidity:
                 self.ids.humidity.progress_color = (
                     32 / 253, 87 / 253, 211 / 253, 1)
-            elif hum >= 50:
-                self.ids.humidity.progress_color = (
-                    11 / 253, 50 / 253, 137 / 253, 1)
         else:
             self.ids.humidity.progress_color = (
                 32 / 253, 87 / 253, 211 / 253, 1)
@@ -197,7 +203,7 @@ class MainScreen(Screen):
             period = app_config.get_period()
 
             delta = current_time - started_at
-            print("DELTA", delta)
+            print("DELTA", delta.days)
 
             if ((delta.days + 1) > current_day):
                 app_config.set_current_day(current_day+1)
@@ -224,10 +230,10 @@ class MainScreen(Screen):
 
     def initialize_day_time(self):
         if app_config.get_is_running():
-            if (led_lamp.get_status() == 1):
+            if (led_lamp.get_status() == True):
                 time_of_the_day.set_status('day')
 
-            elif (led_lamp.get_status() == 0):
+            elif (led_lamp.get_status() == False):
                 time_of_the_day.set_status('night')
 
         self.time_of_the_day_source = time_of_the_day.get_icon()

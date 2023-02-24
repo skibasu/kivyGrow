@@ -25,8 +25,7 @@ class Clock:
             self.calendar = current_date
 
     def check_range(self):
-        now = datetime.now()
-        current_time = now.strftime("%H:%M")
+
         start_h = self.config["get_range"]()[0]["hour"]
         start_m = self.config["get_range"]()[0]["minute"]
         end_h = self.config["get_range"]()[1]["hour"]
@@ -54,17 +53,17 @@ class Clock:
         # during two days
         if (start >= end):
             if (current >= start or current <= end):
-                if (self.led_lamp.get_status() == 0):
+                if (self.led_lamp.get_status() == False):
                     self.set_sunny_day()
             else:
-                if (self.led_lamp.get_status() == 1):
+                if (self.led_lamp.get_status() == True):
                     self.set_dark_night()
 
         # during one day
         if (start <= end):
             if (current >= start and current <= end):
-                if (self.led_lamp.get_status() == 0):
+                if (self.led_lamp.get_status() == False):
                     self.set_sunny_day()
             else:
-                if (self.led_lamp.get_status() == 1):
+                if (self.led_lamp.get_status() == True):
                     self.set_dark_night()
